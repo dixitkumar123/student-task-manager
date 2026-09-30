@@ -1,0 +1,28 @@
+{% extends 'tasks/base.html' %}
+
+{% block title %}Delete Task - Student Task Manager{% endblock %}
+
+{% block content %}
+<div class="auth-wrapper" style="max-width: 500px;">
+    <div class="form-card" style="text-align: center; border-color: rgba(239, 68, 68, 0.4);">
+        <div style="font-size: 3rem; margin-bottom: 0.5rem;">⚠️</div>
+        <h2>Delete Task?</h2>
+        <p class="form-subtitle" style="margin-bottom: 1.5rem;">
+            Kya aap sach mein task <strong>"{{ task.title }}"</strong> ko delete karna chahte hain? Yeh action permanent hai.
+        </p>
+
+        <!-- Delete Confirmation Form -->
+        <form method="POST">
+            {% csrf_token %}
+            <div style="display: flex; gap: 1rem; justify-content: center;">
+                <button type="submit" class="btn btn-danger" style="flex: 1;">
+                    Yes, Delete Task
+                </button>
+                <a href="{% url 'task_list' %}" class="btn btn-secondary" style="flex: 1;">
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,126 @@
+{% extends 'tasks/base.html' %}
+
+{% block title %}My Dashboard - Student Task Manager{% endblock %}
+
+{% block content %}
+<!-- Dashboard Stats Cards -->
+<div class="stats-grid">
+    <div class="stat-card stat-total">
+        <div class="stat-icon">📌</div>
+        <div class="stat-info">
+            <h4>Total Tasks</h4>
+            <p>{{ total_count }}</p>
+        </div>
+    </div>
+    <div class="stat-card stat-pending">
+        <div class="stat-icon">⏳</div>
+        <div class="stat-info">
+            <h4>Pending</h4>
+            <p>{{ pending_count }}</p>
+        </div>
+    </div>
+    <div class="stat-card stat-completed">
+        <div class="stat-icon">✅</div>
+        <div class="stat-info">
+            <h4>Completed</h4>
+            <p>{{ completed_count }}</p>
+        </div>
+    </div>
+</div>
+
+<!-- Actions Bar: Search, Filter, and Add New Task -->
+<div class="actions-bar">
+    <form method="GET" action="{% url 'task_list' %}" class="filter-form">
+        <!-- Search Input -->
+        <input type="text" name="search" class="form-control" placeholder="Search tasks..." value="{{ search_query }}">
+
+        <!-- Status Filter -->
+        <select name="status" class="form-control select-control" onchange="this.form.submit()">
+            <option value="">All Status</option>
+            <option value="Pending" {% if current_status == 'Pending' %}selected{% endif %}>Pending</option>
+            <option value="Completed" {% if current_status == 'Completed' %}selected{% endif %}>Completed</option>
+        </select>
+
+        <!-- Priority Filter -->
+        <select name="priority" class="form-control select-control" onchange="this.form.submit()">
+            <option value="">All Priorities</option>
+            <option value="High" {% if current_priority == 'High' %}selected{% endif %}>High Priority</option>
+            <option value="Medium" {% if current_priority == 'Medium' %}selected{% endif %}>Medium Priority</option>
+            <option value="Low" {% if current_priority == 'Low' %}selected{% endif %}>Low Priority</option>
+        </select>
+
+        <button type="submit" class="btn btn-secondary btn-sm">Filter</button>
+        {% if search_query or current_status or current_priority %}
+            <a href="{% url 'task_list' %}" class="btn btn-secondary btn-sm" style="color: #fca5a5;">Clear</a>
+        {% endif %}
+    </form>
+
+    <a href="{% url 'task_create' %}" class="btn btn-primary">
+        + Add New Task
+    </a>
+</div>
+
+<!-- Task Cards Grid -->
+<div class="tasks-grid">
+    {% for task in tasks %}
+        <div class="task-card priority-{{ task.priority }} status-{{ task.status }}">
+            <div>
+                <div class="task-header">
+                    <h3 class="task-title">{{ task.title }}</h3>
+                    <div style="display: flex; gap: 0.3rem;">
+                        <!-- Priority Badge -->
+                        <span class="badge badge-{{ task.priority|lower }}">
+                            {{ task.priority }}
+                        </span>
+                        <!-- Status Badge -->
+                        <span class="badge badge-{{ task.status|lower }}">
+                            {{ task.status }}
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Description -->
+                <p class="task-desc">
+                    {% if task.description %}
+                        {{ task.description }}
+                    {% else %}
+                        <em style="color: var(--text-dim);">No description provided.</em>
+                    {% endif %}
+                </p>
+            </div>
+
+            <div class="task-footer">
+                <!-- Due Date -->
+                <div class="due-date">
+                    📅 {% if task.due_date %}{{ task.due_date }}{% else %}No Due Date{% endif %}
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="task-actions">
+                    <!-- Toggle Status Button -->
+                    <a href="{% url 'task_toggle_status' task.id %}" class="btn btn-sm {% if task.status == 'Pending' %}btn-success{% else %}btn-secondary{% endif %}" title="Toggle Complete">
+                        {% if task.status == 'Pending' %}✓ Complete{% else %}↺ Reopen{% endif %}
+                    </a>
+
+                    <!-- Edit Button -->
+                    <a href="{% url 'task_update' task.id %}" class="btn btn-secondary btn-sm" title="Edit Task">
+                        ✏️ Edit
+                    </a>
+
+                    <!-- Delete Button -->
+                    <a href="{% url 'task_delete' task.id %}" class="btn btn-danger btn-sm" title="Delete Task">
+                        🗑️
+                    </a>
+                </div>
+            </div>
+        </div>
+    {% empty %}
+        <!-- Empty State -->
+        <div class="empty-state">
+            <h3>No Tasks Found! 📝</h3>
+            <p>Aapke paas abhi koi task nahi hai ya aapke filter matching results empty hain.</p>
+            <a href="{% url 'task_create' %}" class="btn btn-primary">+ Create Your First Task</a>
+        </div>
+    {% endfor %}
+</div>
+{% endblock %}
